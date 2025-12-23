@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math Quiz</title>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #121212;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 350px;
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    button {
+      padding: 10px;
+      margin: 5px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .start button {
+      background: #ff9500;
+      color: black;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      font-size: 18px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: none;
+      text-align: center;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <div class="start">
+    <h2>Pilih Durasi</h2>
+    <button onclick="startQuiz(30)">30 dtk</button>
+    <button onclick="startQuiz(45)">45 dtk</button>
+    <button onclick="startQuiz(60)">60 dtk</button>
+  </div>
+
+  <div class="quiz hidden">
+    <h3 id="timer">Waktu: 0</h3>
+    <h2 id="question">1 + 1</h2>
+    <input type="number" id="answer" placeholder="Jawaban" autofocus>
+  </div>
+
+  <div class="result hidden">
+    <h2>Hasil</h2>
+    <p id="stats"></p>
+    <button onclick="location.reload()">Main Lagi</button>
+  </div>
+
+</div>
+
+<script>
+  let timeLeft;
+  let timer;
+  let correct = 0;
+  let total = 0;
+  let startTime;
+  let currentAnswer = 0;
+
+  const startDiv = document.querySelector(".start");
+  const quizDiv = document.querySelector(".quiz");
+  const resultDiv = document.querySelector(".result");
+
+  const timerEl = document.getElementById("timer");
+  const questionEl = document.getElementById("question");
+  const answerInput = document.getElementById("answer");
+  const statsEl = document.getElementById("stats");
+
+  function startQuiz(seconds) {
+    timeLeft = seconds;
+    startTime = Date.now();
+
+    startDiv.classList.add("hidden");
+    quizDiv.classList.remove("hidden");
+
+    timerEl.textContent = `Waktu: ${timeLeft}`;
+
+    generateQuestion();
+
+    timer = setInterval(() => {
+      timeLeft--;
+      timerEl.textContent = `Waktu: ${timeLeft}`;
+
+      if (timeLeft <= 0) {
+        endQuiz();
+      }
+    }, 1000);
+  }
+
+  function generateQuestion() {
+    const a = Math.floor(Math.random() * 10) + 1;
+    const b = Math.floor(Math.random() * 10) + 1;
+    const ops = ["+", "×"];
+    const op = ops[Math.floor(Math.random() * ops.length)];
+
+    currentAnswer = op === "+"
+      ? a + b
+      : a * b;
+
+    questionEl.textContent = `${a} ${op} ${b}`;
+    answerInput.value = "";
+    answerInput.focus();
+  }
+
+  answerInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      total++;
+      if (Number(answerInput.value) === currentAnswer) {
+        correct++;
+      }
+      generateQuestion();
+    }
+  });
+
+  function endQuiz() {
+    clearInterval(timer);
+    quizDiv.classList.add("hidden");
+    resultDiv.classList.remove("hidden");
+
+    const duration = (Date.now() - startTime) / 1000;
+    const accuracy = total ? ((correct / total) * 100).toFixed(1) : 0;
+    const speed = total ? (total / duration).toFixed(2) : 0;
+
+    statsEl.innerHTML = `
+      Soal dijawab: ${total}<br>
+      Benar: ${correct}<br>
+      Akurasi: ${accuracy}%<br>
+      Kecepatan: ${speed} soal/detik
+    `;
+  }
+</script>
+
+</body>
+</html>
