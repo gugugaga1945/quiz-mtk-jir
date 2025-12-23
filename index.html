@@ -19,33 +19,23 @@
 
     .app {
       width: 100%;
-      max-width: 350px;
+      max-width: 360px;
       background: #1e1e1e;
       padding: 20px;
       border-radius: 12px;
       text-align: center;
     }
 
-    button {
-      padding: 10px;
-      margin: 5px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .start button {
-      background: #ff9500;
-      color: black;
+    h2, h3 {
+      margin: 10px 0;
     }
 
     input {
       width: 100%;
-      padding: 10px;
-      font-size: 18px;
-      margin-top: 10px;
-      border-radius: 8px;
+      padding: 14px;
+      font-size: 22px;
+      margin-top: 15px;
+      border-radius: 10px;
       border: none;
       text-align: center;
     }
@@ -60,23 +50,37 @@
 
 <div class="app">
 
-  <div class="start">
+  <div id="start">
     <h2>Pilih Durasi</h2>
-    <button onclick="startQuiz(30)">30 dtk</button>
-    <button onclick="startQuiz(45)">45 dtk</button>
-    <button onclick="startQuiz(60)">60 dtk</button>
+    <p>Ketik angka lalu Enter</p>
+    <p>30 / 45 / 60</p>
+
+    <input
+      id="durationInput"
+      type="number"
+      inputmode="numeric"
+      placeholder="30"
+      autofocus
+    >
   </div>
 
-  <div class="quiz hidden">
+  <div id="quiz" class="hidden">
     <h3 id="timer">Waktu: 0</h3>
     <h2 id="question">1 + 1</h2>
-    <input type="number" id="answer" placeholder="Jawaban" autofocus>
+
+    <input
+      id="answerInput"
+      type="number"
+      inputmode="numeric"
+      placeholder="Jawaban"
+      autocomplete="off"
+    >
   </div>
 
-  <div class="result hidden">
+  <div id="result" class="hidden">
     <h2>Hasil</h2>
     <p id="stats"></p>
-    <button onclick="location.reload()">Main Lagi</button>
+    <p>Refresh halaman untuk main lagi</p>
   </div>
 
 </div>
@@ -89,14 +93,24 @@
   let startTime;
   let currentAnswer = 0;
 
-  const startDiv = document.querySelector(".start");
-  const quizDiv = document.querySelector(".quiz");
-  const resultDiv = document.querySelector(".result");
+  const startDiv = document.getElementById("start");
+  const quizDiv = document.getElementById("quiz");
+  const resultDiv = document.getElementById("result");
 
   const timerEl = document.getElementById("timer");
   const questionEl = document.getElementById("question");
-  const answerInput = document.getElementById("answer");
+  const answerInput = document.getElementById("answerInput");
+  const durationInput = document.getElementById("durationInput");
   const statsEl = document.getElementById("stats");
+
+  durationInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      const seconds = Number(durationInput.value);
+      if ([30, 45, 60].includes(seconds)) {
+        startQuiz(seconds);
+      }
+    }
+  });
 
   function startQuiz(seconds) {
     timeLeft = seconds;
@@ -106,8 +120,8 @@
     quizDiv.classList.remove("hidden");
 
     timerEl.textContent = `Waktu: ${timeLeft}`;
-
     generateQuestion();
+    answerInput.focus();
 
     timer = setInterval(() => {
       timeLeft--;
@@ -131,7 +145,6 @@
 
     questionEl.textContent = `${a} ${op} ${b}`;
     answerInput.value = "";
-    answerInput.focus();
   }
 
   answerInput.addEventListener("keydown", e => {
