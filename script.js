@@ -13,6 +13,7 @@ const countEl = document.getElementById("count")
 const questionEl = document.getElementById("question")
 const answerInput = document.getElementById("answer")
 const statsEl = document.getElementById("stats")
+const finalMessageEl = document.getElementById("finalMessage")
 
 function startGame(sec) {
   duration = sec
@@ -33,10 +34,7 @@ function startGame(sec) {
   timerInterval = setInterval(() => {
     timeLeft--
     updateUI()
-
-    if (timeLeft <= 0) {
-      endGame()
-    }
+    if (timeLeft <= 0) endGame()
   }, 1000)
 }
 
@@ -80,11 +78,7 @@ answerInput.addEventListener("keydown", e => {
   if (e.key === "Enter") {
     const val = Number(answerInput.value)
     total++
-
-    if (val === currentAnswer) {
-      correct++
-    }
-
+    if (val === currentAnswer) correct++
     answerInput.value = ""
     nextQuestion()
     updateUI()
@@ -96,15 +90,25 @@ function endGame() {
   game.classList.add("hidden")
   result.classList.remove("hidden")
 
-  const accuracy =
-    total === 0 ? 0 : Math.round((correct / total) * 100)
-  const speed =
-    (total / (duration / 60)).toFixed(1)
+  const accuracy = total === 0 ? 0 : correct / total
+
+  let message = ""
+  if (accuracy === 1) {
+    message = "lumayan pinter lo"
+  } else if (accuracy >= 0.5) {
+    message = "yah tolol"
+  } else {
+    message = "jing bego banget"
+  }
+
+  finalMessageEl.textContent = message
+
+  const speed = (total / (duration / 60)).toFixed(1)
 
   statsEl.innerHTML = `
     Soal dijawab: <b>${total}</b><br>
     Benar: <b>${correct}</b><br>
-    Akurasi: <b>${accuracy}%</b><br>
+    Akurasi: <b>${Math.round(accuracy * 100)}%</b><br>
     Kecepatan: <b>${speed} soal/menit</b>
   `
 }
