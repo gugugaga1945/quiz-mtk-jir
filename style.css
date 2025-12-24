@@ -6,12 +6,13 @@
 body {
   margin: 0;
   height: 100vh;
-  background: #0f172a;
+  background: #111827;
   color: #e5e7eb;
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 
 .container {
   width: 100%;
@@ -30,7 +31,7 @@ h1 {
 
 .durations button,
 .controls button {
-  background: #1e293b;
+  background: #1f2937;
   border: none;
   color: #e5e7eb;
   padding: 12px 20px;
@@ -39,6 +40,7 @@ h1 {
   font-size: 16px;
   cursor: pointer;
 }
+
 
 .durations button:hover,
 .controls button:hover {
@@ -73,4 +75,8 @@ input {
   display: flex;
   justify-content: center;
   gap: 10px;
+}
+
+input.warning {
+  border: 2px solid #ef4444;
 }
