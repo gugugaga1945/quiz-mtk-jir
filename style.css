@@ -13,7 +13,6 @@ body {
   align-items: center;
 }
 
-
 .container {
   width: 100%;
   max-width: 400px;
@@ -41,10 +40,9 @@ h1 {
   cursor: pointer;
 }
 
-
 .durations button:hover,
 .controls button:hover {
-  background: #334155;
+  background: #374151;
 }
 
 .question {
@@ -62,6 +60,10 @@ input {
   outline: none;
 }
 
+input.warning {
+  border: 2px solid #ef4444;
+}
+
 .topbar {
   display: flex;
   justify-content: space-between;
@@ -75,8 +77,4 @@ input {
   display: flex;
   justify-content: center;
   gap: 10px;
-}
-
-input.warning {
-  border: 2px solid #ef4444;
 }
