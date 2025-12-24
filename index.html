@@ -1,177 +1,253 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Math Quiz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, sans-serif;
+    }
+
     body {
       margin: 0;
-      min-height: 100vh;
+      height: 100vh;
+      background: #0f172a;
+      color: #e5e7eb;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: #121212;
-      font-family: Arial, sans-serif;
-      color: white;
     }
 
-    .app {
+    .container {
       width: 100%;
-      max-width: 360px;
-      background: #1e1e1e;
+      max-width: 400px;
+      text-align: center;
       padding: 20px;
-      border-radius: 12px;
-      text-align: center;
-    }
-
-    h2, h3 {
-      margin: 10px 0;
-    }
-
-    input {
-      width: 100%;
-      padding: 14px;
-      font-size: 22px;
-      margin-top: 15px;
-      border-radius: 10px;
-      border: none;
-      text-align: center;
     }
 
     .hidden {
       display: none;
     }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .durations button,
+    .controls button {
+      background: #1e293b;
+      border: none;
+      color: #e5e7eb;
+      padding: 12px 20px;
+      margin: 5px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .durations button:hover,
+    .controls button:hover {
+      background: #334155;
+    }
+
+    .question {
+      font-size: 32px;
+      margin: 20px 0;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 24px;
+      text-align: center;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
   </style>
 </head>
-
 <body>
 
-<div class="app">
+<div class="container">
 
-  <div id="start">
-    <h2>Pilih Durasi</h2>
-    <p>Ketik angka lalu Enter</p>
-    <p>30 / 45 / 60</p>
+  <!-- MENU -->
+  <div id="menu">
+    <h1>Math Quiz</h1>
+    <div class="durations">
+      <button onclick="startGame(30)">30s</button>
+      <button onclick="startGame(45)">45s</button>
+      <button onclick="startGame(60)">60s</button>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div id="game" class="hidden">
+    <div class="topbar">
+      <div id="timer">0s</div>
+      <div id="count">0 soal</div>
+    </div>
+
+    <div class="question" id="question">1 + 1</div>
 
     <input
-      id="durationInput"
       type="number"
+      id="answer"
       inputmode="numeric"
-      placeholder="30"
+      autocomplete="off"
       autofocus
     >
   </div>
 
-  <div id="quiz" class="hidden">
-    <h3 id="timer">Waktu: 0</h3>
-    <h2 id="question">1 + 1</h2>
-
-    <input
-      id="answerInput"
-      type="number"
-      inputmode="numeric"
-      placeholder="Jawaban"
-      autocomplete="off"
-    >
-  </div>
-
+  <!-- RESULT -->
   <div id="result" class="hidden">
-    <h2>Hasil</h2>
+    <h1>Hasil</h1>
     <p id="stats"></p>
-    <p>Refresh halaman untuk main lagi</p>
+
+    <div class="controls">
+      <button onclick="restart()">⟳</button>
+      <button onclick="goHome()">⌂</button>
+    </div>
   </div>
 
 </div>
 
 <script>
-  let timeLeft;
-  let timer;
-  let correct = 0;
-  let total = 0;
-  let startTime;
-  let currentAnswer = 0;
+  let timeLeft = 0
+  let timerInterval
+  let total = 0
+  let correct = 0
+  let currentAnswer = 0
+  let duration = 0
 
-  const startDiv = document.getElementById("start");
-  const quizDiv = document.getElementById("quiz");
-  const resultDiv = document.getElementById("result");
+  const menu = document.getElementById("menu")
+  const game = document.getElementById("game")
+  const result = document.getElementById("result")
+  const timerEl = document.getElementById("timer")
+  const countEl = document.getElementById("count")
+  const questionEl = document.getElementById("question")
+  const answerInput = document.getElementById("answer")
+  const statsEl = document.getElementById("stats")
 
-  const timerEl = document.getElementById("timer");
-  const questionEl = document.getElementById("question");
-  const answerInput = document.getElementById("answerInput");
-  const durationInput = document.getElementById("durationInput");
-  const statsEl = document.getElementById("stats");
+  function startGame(sec) {
+    duration = sec
+    timeLeft = sec
+    total = 0
+    correct = 0
 
-  durationInput.addEventListener("keydown", e => {
-    if (e.key === "Enter") {
-      const seconds = Number(durationInput.value);
-      if ([30, 45, 60].includes(seconds)) {
-        startQuiz(seconds);
-      }
-    }
-  });
+    menu.classList.add("hidden")
+    result.classList.add("hidden")
+    game.classList.remove("hidden")
 
-  function startQuiz(seconds) {
-    timeLeft = seconds;
-    startTime = Date.now();
+    nextQuestion()
+    updateUI()
 
-    startDiv.classList.add("hidden");
-    quizDiv.classList.remove("hidden");
+    answerInput.value = ""
+    answerInput.focus()
 
-    timerEl.textContent = `Waktu: ${timeLeft}`;
-    generateQuestion();
-    answerInput.focus();
-
-    timer = setInterval(() => {
-      timeLeft--;
-      timerEl.textContent = `Waktu: ${timeLeft}`;
+    timerInterval = setInterval(() => {
+      timeLeft--
+      updateUI()
 
       if (timeLeft <= 0) {
-        endQuiz();
+        endGame()
       }
-    }, 1000);
+    }, 1000)
   }
 
-  function generateQuestion() {
-    const a = Math.floor(Math.random() * 10) + 1;
-    const b = Math.floor(Math.random() * 10) + 1;
-    const ops = ["+", "×"];
-    const op = ops[Math.floor(Math.random() * ops.length)];
+  function randomQuestion() {
+    const a = Math.floor(Math.random() * 10) + 1
+    const b = Math.floor(Math.random() * 10) + 1
+    const ops = ["+", "-", "×", "÷"]
+    const op = ops[Math.floor(Math.random() * ops.length)]
 
-    currentAnswer = op === "+"
-      ? a + b
-      : a * b;
+    let q, ans
 
-    questionEl.textContent = `${a} ${op} ${b}`;
-    answerInput.value = "";
+    if (op === "+") {
+      q = `${a} + ${b}`
+      ans = a + b
+    } else if (op === "-") {
+      q = `${a} - ${b}`
+      ans = a - b
+    } else if (op === "×") {
+      q = `${a} × ${b}`
+      ans = a * b
+    } else {
+      q = `${a * b} ÷ ${a}`
+      ans = b
+    }
+
+    return { q, ans }
+  }
+
+  function nextQuestion() {
+    const data = randomQuestion()
+    questionEl.textContent = data.q
+    currentAnswer = data.ans
+  }
+
+  function updateUI() {
+    timerEl.textContent = `${timeLeft}s`
+    countEl.textContent = `${total} soal`
   }
 
   answerInput.addEventListener("keydown", e => {
     if (e.key === "Enter") {
-      total++;
-      if (Number(answerInput.value) === currentAnswer) {
-        correct++;
+      const val = Number(answerInput.value)
+      total++
+
+      if (val === currentAnswer) {
+        correct++
       }
-      generateQuestion();
+
+      answerInput.value = ""
+      nextQuestion()
+      updateUI()
     }
-  });
+  })
 
-  function endQuiz() {
-    clearInterval(timer);
-    quizDiv.classList.add("hidden");
-    resultDiv.classList.remove("hidden");
+  function endGame() {
+    clearInterval(timerInterval)
+    game.classList.add("hidden")
+    result.classList.remove("hidden")
 
-    const duration = (Date.now() - startTime) / 1000;
-    const accuracy = total ? ((correct / total) * 100).toFixed(1) : 0;
-    const speed = total ? (total / duration).toFixed(2) : 0;
+    const accuracy = total === 0 ? 0 : Math.round((correct / total) * 100)
+    const speed = (total / (duration / 60)).toFixed(1)
 
     statsEl.innerHTML = `
-      Soal dijawab: ${total}<br>
-      Benar: ${correct}<br>
-      Akurasi: ${accuracy}%<br>
-      Kecepatan: ${speed} soal/detik
-    `;
+      Soal dijawab: <b>${total}</b><br>
+      Benar: <b>${correct}</b><br>
+      Akurasi: <b>${accuracy}%</b><br>
+      Kecepatan: <b>${speed} soal/menit</b>
+    `
+  }
+
+  function restart() {
+    startGame(duration)
+  }
+
+  function goHome() {
+    clearInterval(timerInterval)
+    result.classList.add("hidden")
+    game.classList.add("hidden")
+    menu.classList.remove("hidden")
   }
 </script>
 
