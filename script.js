@@ -76,9 +76,25 @@ function updateUI() {
 
 answerInput.addEventListener("keydown", e => {
   if (e.key === "Enter") {
-    const val = Number(answerInput.value)
+    const raw = answerInput.value.trim()
+
+    if (raw === "") {
+      answerInput.placeholder = "ISI DLU BEGO!"
+      answerInput.classList.add("warning")
+
+      setTimeout(() => {
+        answerInput.placeholder = ""
+        answerInput.classList.remove("warning")
+      }, 1000)
+
+      return
+    }
+
+    const val = Number(raw)
     total++
+
     if (val === currentAnswer) correct++
+
     answerInput.value = ""
     nextQuestion()
     updateUI()
@@ -91,8 +107,8 @@ function endGame() {
   result.classList.remove("hidden")
 
   const accuracy = total === 0 ? 0 : correct / total
-
   let message = ""
+
   if (accuracy === 1) {
     message = "lumayan pinter lo"
   } else if (accuracy >= 0.5) {
